@@ -27,5 +27,5 @@ Max Humidity: If the humidity goes above this, the dehydrator will be turned on,
 
 Any USB device that operates similarly to this Open Source project:
 
-    https://github.com/waltmoorhouse/FilamentBox
+    [https://github.com/waltmoorhouse/FilamentBox](https://github.com/waltmoorhouse/FilamentBox)
     
