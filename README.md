@@ -22,3 +22,10 @@ Default Max Humidity: Max Temp will be set to this value on startup.
 
 Max Temp: If the temp goes above this, the dehydrator will be turned off.
 Max Humidity: If the humidity goes above this, the dehydrator will be turned on, unless currentTemp > maxTemp.
+
+## Device Compatibility
+
+Any USB device that operates similarly to this Open Source project:
+
+    https://github.com/waltmoorhouse/FilamentBox
+    
