@@ -1,0 +1,4 @@
+include README.md
+recursive-include octoprint_filamentstorage/templates *
+recursive-include octoprint_filamentstorage/translations *
+recursive-include octoprint_filamentstorage/static *

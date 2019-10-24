@@ -1,0 +1,31 @@
+<div>
+    <h1>Filament Storage Container</h1>
+    Humidity: <input class="storage-box-display" disabled="disabled" data-bind="value: humidity"/>
+    Max: <input class="storage-box-input" type="number" data-bind="value: newMaxH">
+    <button class="btn btn-primary" data-bind="click: setMaxH">{{ _('Set') }}</button><br/>
+    Temperature: <input class="storage-box-display" disabled="disabled"  data-bind="value: temp"/>
+    Max: <input class="storage-box-input" type="number" data-bind="value: newMaxT">
+    <button class="btn btn-primary" data-bind="click: setMaxT">{{ _('Set') }}</button><br/>
+    Heater: <input class="storage-box-display" disabled="disabled" data-bind="value: heaterPower"/> <br/>
+    <table border="1">
+        <tr><th>Spool 1</th><th>Spool 2</th><th>Spool 3</th><th>Spool 4</th></tr>
+        <tr>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: w1"/></td>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: w2"/></td>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: w3"/></td>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: w4"/></td>
+        </tr><tr>
+            <td><button class="btn btn-warning" data-bind="click: tare1">{{ _('Tare') }}</button><br/></td>
+            <td><button class="btn btn-warning" data-bind="click: tare2">{{ _('Tare') }}</button><br/></td>
+            <td><button class="btn btn-warning" data-bind="click: tare3">{{ _('Tare') }}</button><br/></td>
+            <td><button class="btn btn-warning" data-bind="click: tare4">{{ _('Tare') }}</button><br/></td>
+        </tr>
+    </table>
+    <div>
+        Error: <input class="storage-box-error" disabled="disabled" data-bind="value: errorMsg"/>
+    </div>
+    <hr/>
+    <div data-bind="if: disconnected">
+        <button class="btn btn-primary" data-bind="click: connect">Connect</button>
+    </div>
+</div>

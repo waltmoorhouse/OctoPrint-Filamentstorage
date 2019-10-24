@@ -1,0 +1,17 @@
+.storage-box-input {
+    width: 40px;
+}
+
+.storage-box-display {
+    width: 80px;
+    background-color: white !important;
+    color: black;
+    border: none;
+}
+
+.storage-box-error  {
+    width: 80%;
+    background-color: white !important;
+    color: black;
+    border: none;
+}

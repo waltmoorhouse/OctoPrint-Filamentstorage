@@ -1,0 +1,12 @@
+<form class="form-horizontal">
+    <div class="control-group">
+        <label class="control-label">{{ _('Default Max Temp') }}</label>
+        <div class="controls">
+            <input class="storage-box-input" type="number" data-bind="value: settings.plugins.filamentstorage.maxT">
+        </div>
+        <label class="control-label">{{ _('Default Max Humidity') }}</label>
+        <div class="controls">
+            <input class="storage-box-input" type="number" min="0" max="100" data-bind="value: settings.plugins.filamentstorage.maxH">
+        </div>
+    </div>
+</form>
