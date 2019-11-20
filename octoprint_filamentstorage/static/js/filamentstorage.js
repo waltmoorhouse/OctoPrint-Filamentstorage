@@ -22,7 +22,12 @@ $(function() {
         self.w2 = ko.observable();
         self.w3 = ko.observable();
         self.w4 = ko.observable();
+        self.l1 = ko.observable();
+        self.l2 = ko.observable();
+        self.l3 = ko.observable();
+        self.l4 = ko.observable();
         self.errorMsg = ko.observable();
+        self.calibrationMsg = ko.observable();
 
         self.setMaxH = function() {
             self.errorMsg("");
@@ -32,6 +37,28 @@ $(function() {
         self.setMaxT = function() {
             self.errorMsg("");
             self.ajaxRequest({"command": "set", "name": "T", "value": self.newMaxT()});
+        };
+
+        self.calibrate1 = function() {
+            self.calibrate(1);
+        };
+
+        self.calibrate2 = function() {
+            self.calibrate(2);
+        };
+
+        self.calibrate3 = function() {
+            self.calibrate(3);
+        };
+
+        self.calibrate4 = function() {
+            self.calibrate(4);
+        };
+
+        self.calibrate = function(scale) {
+            self.errorMsg("");
+            self.calibrationMsg("...");
+            self.ajaxRequest({"command": "calibrate", "id": scale, "mass": self.settings.settings.plugins.filamentstorage.calibrateKg()});
         };
 
         self.tare1 = function() {
@@ -55,6 +82,27 @@ $(function() {
             self.ajaxRequest({"command": "tare", "id": id});
         };
 
+        self.zero1 = function() {
+            self.zero(1);
+        };
+
+        self.zero2 = function() {
+            self.zero(2);
+        };
+
+        self.zero3 = function() {
+            self.zero(3);
+        };
+
+        self.zero4 = function() {
+            self.zero(4);
+        };
+
+        self.zero = function(id) {
+            self.errorMsg("");
+            self.ajaxRequest({"command": "zero", "id": id});
+        };
+
         self.connect = function() {
             self.errorMsg("");
             self.ajaxRequest({"command": "connect"});
@@ -75,9 +123,25 @@ $(function() {
                 self.disconnected(false);
                 if (message.type === "error") {
                     self.errorMsg(message.data);
+                } else if (message.type === "prompt") {
+                    if (confirm(message.data.split(":")[0])) {
+                        self.ajaxRequest({"command": "response", "data": "OK"});
+                    } else {
+                        self.ajaxRequest({"command": "response", "data": "CANCEL"});
+                    }
                 } else if (message.type === "control") {
                     if (message.data === "disconnected") {
                         self.disconnected(true);
+                    } else {
+                        let dataSegs = message.data.split(":");
+                        if ("CALIBRATION" === dataSegs[0]) {
+                            self.calibrationMsg(dataSegs[2]);
+                            let vals = dataSegs[1].split(" ");
+                            self.settings.settings.plugins.filamentstorage.scale1CalibrationValue(vals[0]);
+                            self.settings.settings.plugins.filamentstorage.scale2CalibrationValue(vals[1]);
+                            self.settings.settings.plugins.filamentstorage.scale3CalibrationValue(vals[2]);
+                            self.settings.settings.plugins.filamentstorage.scale4CalibrationValue(vals[3]);
+                        }
                     }
                 } else if (message.type === "status") {
                     message.data.split(" ").forEach(pair => {
@@ -103,6 +167,18 @@ $(function() {
                                 break;
                             case 'S4':
                                 self.w4(parts[1]);
+                                break;
+                            case 'L1':
+                                self.l1(parts[1]);
+                                break;
+                            case 'L2':
+                                self.l2(parts[1]);
+                                break;
+                            case 'L3':
+                                self.l3(parts[1]);
+                                break;
+                            case 'L4':
+                                self.l4(parts[1]);
                                 break;
                         }
                     });

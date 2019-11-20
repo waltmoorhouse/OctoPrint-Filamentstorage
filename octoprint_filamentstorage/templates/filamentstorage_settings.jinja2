@@ -8,5 +8,27 @@
         <div class="controls">
             <input class="storage-box-input" type="number" min="0" max="100" data-bind="value: settings.plugins.filamentstorage.maxH">
         </div>
+        <p>Before Calibrating, remove all weight from the scales you will be calibrating and wait for the readings to stabilize.
+            Enter calibration weight below. Hit the Calibration button and follow the instruction in the Message box below.</p>
+        <label class="control-label">{{ _('Calibration Known Weight (in kg)') }}</label>
+        <div class="controls">
+            <input class="storage-box-input" type="number" min=".10" step=".05" max="4.00" value=".10"
+                   data-bind="value: settings.plugins.filamentstorage.calibrateKg">
+            <table>
+                <tr>
+                    <td><label class="control-label">{{ _('Calibration Value 1') }}</label><input class="storage-box-input" type="number" data-bind="value: settings.plugins.filamentstorage.scale1CalibrationValue"></td>
+                    <td><label class="control-label">{{ _('Calibration Value 2') }}</label><input class="storage-box-input" type="number" data-bind="value: settings.plugins.filamentstorage.scale2CalibrationValue"></td>
+                    <td><label class="control-label">{{ _('Calibration Value 3') }}</label><input class="storage-box-input" type="number" data-bind="value: settings.plugins.filamentstorage.scale3CalibrationValue"></td>
+                    <td><label class="control-label">{{ _('Calibration Value 4') }}</label><input class="storage-box-input" type="number" data-bind="value: settings.plugins.filamentstorage.scale4CalibrationValue"></td>
+                </tr>
+                <tr>
+                    <td><button class="btn btn-warning" data-bind="click: calibrate1">{{ _('Calibrate Scale 1') }}</button></td>
+                    <td><button class="btn btn-warning" data-bind="click: calibrate2">{{ _('Calibrate Scale 2') }}</button></td>
+                    <td><button class="btn btn-warning" data-bind="click: calibrate3">{{ _('Calibrate Scale 3') }}</button></td>
+                    <td><button class="btn btn-warning" data-bind="click: calibrate4">{{ _('Calibrate Scale 4') }}</button></td>
+                </tr>
+            </table>
+        </div>
+        Calibration Message: <input class="storage-box-display" disabled="disabled" data-bind="value: calibrationMsg"/>
     </div>
 </form>

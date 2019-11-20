@@ -20,7 +20,19 @@
             <td><button class="btn btn-warning" data-bind="click: tare3">{{ _('Tare') }}</button><br/></td>
             <td><button class="btn btn-warning" data-bind="click: tare4">{{ _('Tare') }}</button><br/></td>
         </tr>
+        <tr>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: l1"/></td>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: l2"/></td>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: l3"/></td>
+            <td><input class="storage-box-display" disabled="disabled" data-bind="value: l4"/></td>
+        </tr><tr>
+            <td><button class="btn btn-warning" data-bind="click: zero1">{{ _('Zero') }}</button><br/></td>
+            <td><button class="btn btn-warning" data-bind="click: zero2">{{ _('Zero') }}</button><br/></td>
+            <td><button class="btn btn-warning" data-bind="click: zero3">{{ _('Zero') }}</button><br/></td>
+            <td><button class="btn btn-warning" data-bind="click: zero4">{{ _('Zero') }}</button><br/></td>
+        </tr>
     </table>
+
     <div>
         Error: <input class="storage-box-error" disabled="disabled" data-bind="value: errorMsg"/>
     </div>
