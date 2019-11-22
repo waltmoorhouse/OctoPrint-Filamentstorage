@@ -53,17 +53,32 @@ class Connection():
 	def update_ui_status(self, data):
 		self._plugin_manager.send_plugin_message(self._identifier, {"type": "status", "data": data})
 
+	def update_ui_prompt(self, prompt):
+		self._plugin_manager.send_plugin_message(self._identifier, {"type": "prompt", "data": prompt})
+
 	def update_ui_error(self, error):
 		self._plugin_manager.send_plugin_message(self._identifier, {"type": "error", "data": error})
 
 	def set(self, name, value):
-		valueStr = "SET " + name + "=%s" % value
-		self._logger.info(valueStr)
-		self.serialConn.write(valueStr.encode())
+		value_str = "SET " + name + "=%s" % value
+		self._logger.info(value_str)
+		self.serialConn.write(value_str.encode())
+
+	def send(self, data):
+		self._logger.info("Sending: %s" % data)
+		self.serialConn.write(data.encode())
+
+	def calibrate(self, spoolNum):
+		self._logger.info("Calibrating spool: %s" % spoolNum)
+		self.serialConn.write(("CALI %s" % spoolNum).encode())
 
 	def tare(self, spoolNum):
 		self._logger.info("Taring spool: %s" % spoolNum)
 		self.serialConn.write(("TARE %s" % spoolNum).encode())
+
+	def zero(self, spoolNum):
+		self._logger.info("Zeroing spool: %s" % spoolNum)
+		self.serialConn.write(("ZERO %s" % spoolNum).encode())
 
 	def arduinoReadThread(self, serialConnection):
 		self._logger.info("Read Thread: Starting thread")
@@ -74,6 +89,10 @@ class Connection():
 					line = line.strip()
 					if line[:5] == "ERROR":
 						self.update_ui_error(line)
+					elif line[:6] == "PROMPT":
+						self.update_ui_prompt(line)
+					elif line[:11] == "CALIBRATION":
+						self.update_ui_control(line)
 					else:
 						self.update_ui_status(line)
 			except serial.SerialException:

@@ -12,6 +12,6 @@
 .storage-box-error  {
     width: 80%;
     background-color: white !important;
-    color: black;
+    color: darkred;
     border: none;
 }

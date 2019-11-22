@@ -1,12 +1,15 @@
 # OctoPrint-Filamentstorage
 
-Connects to any Filament Storage Box supporting the below serial communications:
+Connects to RepBox or any [Filament Storage Box](https://github.com/waltmoorhouse/FilamentBox)
+supporting the below serial communications:
 1) sends periodic updates in the following format: 
-    H:xx.xx% T:xx.xxC S1:x.xxkg S2:x.xxkg S3:x.xxkg S4:x.xxkg P:\[ON|OFF\]
+    H:xx.xx% T:xx.xxC S1:x.xxkg S2:x.xxkg S3:x.xxkg S4:x.xxkg L1:x.xxmm L2:x.xxmm L3:x.xxmm L4:x.xxmm P:\[ON|OFF\]
 1) accepts the following commands:
     1) SET H=xx (sets maxHumidity to xx)
     1) SET T=xx (sets maxTemperature to xx)
     1) TARE y (Tares scale y, 0<y<5)
+    1) ZERO z (Zeros length z, 0<z<5)
+    1) CALI y=xx (Calibrates scale y, 0<y<5, with a known weight xx)
 
 ## Setup
 
