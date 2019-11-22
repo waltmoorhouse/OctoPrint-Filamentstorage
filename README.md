@@ -1,6 +1,7 @@
 # OctoPrint-Filamentstorage
 
-Connects to RepBox or any Filament Storage Box supporting the below serial communications:
+Connects to RepBox or any [Filament Storage Box](https://github.com/waltmoorhouse/FilamentBox)
+supporting the below serial communications:
 1) sends periodic updates in the following format: 
     H:xx.xx% T:xx.xxC S1:x.xxkg S2:x.xxkg S3:x.xxkg S4:x.xxkg L1:x.xxmm L2:x.xxmm L3:x.xxmm L4:x.xxmm P:\[ON|OFF\]
 1) accepts the following commands:
