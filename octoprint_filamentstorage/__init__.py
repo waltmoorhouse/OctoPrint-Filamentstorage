@@ -44,7 +44,7 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 		return dict(
 			connect=[],
 			response=["data"],
-			calibrate=["id", "mass"],
+			calibrate=["id"],
 			set=["name", "value"],
 			tare=["id"],
 			zero=["id"]
@@ -60,7 +60,7 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 			elif command == "set":
 				self.conn.set(payload["name"], payload["value"])
 			elif command == "calibrate":
-				self.conn.calibrate(payload["id"], payload["mass"])
+				self.conn.calibrate(payload["id"])
 			elif command == "tare":
 				self.conn.tare(payload["id"])
 			elif command == "zero":

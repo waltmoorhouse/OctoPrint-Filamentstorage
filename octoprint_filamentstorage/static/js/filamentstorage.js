@@ -28,6 +28,11 @@ $(function() {
         self.l4 = ko.observable();
         self.errorMsg = ko.observable();
         self.calibrationMsg = ko.observable();
+        self.calibrateKg = ko.observable();
+        self.scale1_calibration_value = ko.observable();
+        self.scale2_calibration_value = ko.observable();
+        self.scale3_calibration_value = ko.observable();
+        self.scale4_calibration_value = ko.observable();
 
         self.setMaxH = function() {
             self.errorMsg("");
@@ -58,7 +63,7 @@ $(function() {
         self.calibrate = function(scale) {
             self.errorMsg("");
             self.calibrationMsg("...");
-            self.ajaxRequest({"command": "calibrate", "id": scale, "mass": self.settings.settings.plugins.filamentstorage.calibrateKg()});
+            self.ajaxRequest({"command": "calibrate", "id": scale });
         };
 
         self.tare1 = function() {
@@ -112,6 +117,7 @@ $(function() {
             self.errorMsg("");
             self.newMaxH(self.settings.settings.plugins.filamentstorage.maxH());
             self.newMaxT(self.settings.settings.plugins.filamentstorage.maxT());
+            self.calibrateKg(0.10);
             if (!self.disconnected()) {
                 self.setMaxH();
                 self.setMaxT();
@@ -124,8 +130,9 @@ $(function() {
                 if (message.type === "error") {
                     self.errorMsg(message.data);
                 } else if (message.type === "prompt") {
-                    if (confirm(message.data.split(":")[0])) {
-                        self.ajaxRequest({"command": "response", "data": "OK"});
+                    let answer = prompt(message.data.split(":")[1], "0.100");
+                    if (answer != null) {
+                        self.ajaxRequest({"command": "response", "data": answer});
                     } else {
                         self.ajaxRequest({"command": "response", "data": "CANCEL"});
                     }
@@ -137,10 +144,10 @@ $(function() {
                         if ("CALIBRATION" === dataSegs[0]) {
                             self.calibrationMsg(dataSegs[2]);
                             let vals = dataSegs[1].split(" ");
-                            self.settings.settings.plugins.filamentstorage.scale1CalibrationValue(vals[0]);
-                            self.settings.settings.plugins.filamentstorage.scale2CalibrationValue(vals[1]);
-                            self.settings.settings.plugins.filamentstorage.scale3CalibrationValue(vals[2]);
-                            self.settings.settings.plugins.filamentstorage.scale4CalibrationValue(vals[3]);
+                            self.scale1_calibration_value(vals[0]);
+                            self.scale2_calibration_value(vals[1]);
+                            self.scale3_calibration_value(vals[2]);
+                            self.scale4_calibration_value(vals[3]);
                         }
                     }
                 } else if (message.type === "status") {

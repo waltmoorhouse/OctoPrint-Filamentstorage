@@ -68,9 +68,9 @@ class Connection():
 		self._logger.info("Sending: %s" % data)
 		self.serialConn.write(data.encode())
 
-	def calibrate(self, spoolNum, mass):
-		self._logger.info("Calibrating spool: %s with mass %s" % spoolNum % mass)
-		self.serialConn.write(("CALI %s=%s" % spoolNum % mass).encode())
+	def calibrate(self, spoolNum):
+		self._logger.info("Calibrating spool: %s" % spoolNum)
+		self.serialConn.write(("CALI %s" % spoolNum).encode())
 
 	def tare(self, spoolNum):
 		self._logger.info("Taring spool: %s" % spoolNum)
