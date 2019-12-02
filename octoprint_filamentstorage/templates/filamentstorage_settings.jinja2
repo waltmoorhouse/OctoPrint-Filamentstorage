@@ -8,5 +8,13 @@
         <div class="controls">
             <input class="storage-box-input" type="number" min="0" max="100" data-bind="value: settings.plugins.filamentstorage.maxH">
         </div>
+        <label class="control-label">{{ _('Pause on Extrusion Mixmatch') }}</label>
+        <div class="controls">
+            <input class="storage-box-input" type="checkbox" data-bind="checked: settings.plugins.filamentstorage.extrusionMismatchPause">
+        </div><br/>
+        <label class="control-label">{{ _('Maximum Extrusion Mixmatch (mm)') }}</label>
+        <div class="controls">
+            <input class="storage-box-input" type="number" min="1" max="1000" data-bind="value: settings.plugins.filamentstorage.extrusionMismatchMax">
+        </div>
     </div>
 </form>

@@ -2,8 +2,12 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
+import re
 import flask
 from . import Connection
+
+EXTRUSION_EXPRESSION = ".*G[0|1] .*E[+]*([\\-0-9]+[.]*[0-9]*).*"
+extrusionPattern = re.compile(EXTRUSION_EXPRESSION)
 
 
 class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
@@ -15,9 +19,12 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 	# ~~ StartupPlugin mixin
 
 	def on_after_startup(self):
-		self._logger.info("Connecting to Filament Storage Container...")
+		self._logger.info("Attempting to connect to Filament Storage Container...")
 		self.conn = Connection.Connection(self)
-		self._logger.info("Connected to Filament Storage Container!")
+		if self.conn.is_connected():
+			self._logger.info("Connected to Filament Storage Container!")
+		else:
+			self._logger.info("Could not connect to Filament Storage Container!")
 
 	# ~~ SettingsPlugin mixin
 
@@ -25,7 +32,9 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 		return dict(
 			maxT=80,
 			maxH=5,
-			warnH=15
+			warnH=15,
+			extrusionMismatchPause=False,
+			extrusionMismatchMax=25,
 		)
 
 	# ~~ AssetPlugin mixin
@@ -35,7 +44,7 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 		# core UI here.
 		return dict(
 			js=["js/filamentstorage.js"],
-			css=["css/filamentstorage.css"]
+			css=["css/filamentstorage.css"],
 		)
 
 	# ~~ SimpleApiPlugin mixin
@@ -47,7 +56,8 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 			calibrate=["id"],
 			set=["name", "value"],
 			tare=["id"],
-			zero=["id"]
+			zero=["id"],
+			reset=[],
 		)
 
 	def on_api_command(self, command, payload):
@@ -55,6 +65,8 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 			data = None
 			if command == "connect":
 				self.conn.connect()
+			if command == "reset":
+				self.conn.reset_extrusion()
 			elif command == "response":
 				self.conn.send(payload["data"])
 			elif command == "set":
@@ -71,6 +83,12 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 			error = str(e)
 			self._logger.info("Exception message: %s" % str(e))
 			return flask.jsonify(error=error, status=500), 500
+
+	# ~~ Gcode Processor hook
+	def process_line(self, comm_instance, phase, cmd, cmd_type, gcode, subcode=None, tags=None, *args, **kwargs):
+		match = extrusionPattern.match(cmd)
+		if match:
+			self.conn.monitor_gcode_extrusion(match.group(1))
 
 	# ~~ SoftwareUpdate hook
 
@@ -112,5 +130,6 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
-		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.process_line
 	}
