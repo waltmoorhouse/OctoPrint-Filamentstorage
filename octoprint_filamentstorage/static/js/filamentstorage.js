@@ -111,6 +111,8 @@ $(function() {
         };
 
         self.resetExtMon = function() {
+            self.gcodeExtrusion("0.00");
+            self.boxExtrusion("0.00");
             self.ajaxRequest({"command": "reset"});
         };
 
