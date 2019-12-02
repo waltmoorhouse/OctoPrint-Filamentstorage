@@ -2,8 +2,6 @@
 from __future__ import absolute_import
 
 import octoprint.plugin
-import octoprint.filemanager
-import octoprint.filemanager.util
 import re
 import flask
 from . import Connection
