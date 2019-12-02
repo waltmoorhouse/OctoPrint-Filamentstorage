@@ -1,9 +1,19 @@
 import os
+import re
 import sys
 import glob
 import threading
 import serial
 import serial.tools.list_ports
+
+L1_EXPRESSION = ".*L1:+([\\-0-9]+[.]*[0-9]*)mm.*"
+L2_EXPRESSION = ".*L2:+([\\-0-9]+[.]*[0-9]*)mm.*"
+L3_EXPRESSION = ".*L3:+([\\-0-9]+[.]*[0-9]*)mm.*"
+L4_EXPRESSION = ".*L4:+([\\-0-9]+[.]*[0-9]*)mm.*"
+l1Pattern = re.compile(L1_EXPRESSION)
+l2Pattern = re.compile(L2_EXPRESSION)
+l3Pattern = re.compile(L3_EXPRESSION)
+l4Pattern = re.compile(L4_EXPRESSION)
 
 
 class Connection():
@@ -21,6 +31,9 @@ class Connection():
 		self.readThreadStop = False
 		self._connected = False
 		self.serialConn = None
+		self.gCodeExtrusion = 0
+		self.boxExtrusion = 0
+		self.boxExtrusionOffset = 0
 		self.connect()
 
 	def connect(self):
@@ -80,7 +93,42 @@ class Connection():
 		self._logger.info("Zeroing spool: %s" % spoolNum)
 		self.serialConn.write(("ZERO %s" % spoolNum).encode())
 
-	def arduinoReadThread(self, serialConnection):
+	def reset_extrusion(self):
+		self.gCodeExtrusion = 0
+		self.boxExtrusionOffset = self.boxExtrusion
+		self.boxExtrusion = 0
+
+	def monitor_box_extrusion(self, status):
+		amount = 0
+		match = l1Pattern.match(status)
+		if match:
+			amount += float(match.group(1))
+
+		match = l2Pattern.match(status)
+		if match:
+			amount += float(match.group(1))
+
+		match = l3Pattern.match(status)
+		if match:
+			amount += float(match.group(1))
+
+		match = l4Pattern.match(status)
+		if match:
+			amount += float(match.group(1))
+
+		self.boxExtrusion = (amount - self.boxExtrusionOffset)
+		self._plugin_manager.send_plugin_message(self._identifier, dict(type="extrusion", data="box=%d" % self.boxExtrusion))
+
+	def monitor_gcode_extrusion(self, amount):
+		self.gCodeExtrusion += float(amount)
+		if self._settings.get(["extrusionMismatchPause"]):
+			if float(self.gCodeExtrusion) - float(self.boxExtrusion) > float(self._settings.get(["extrusionMismatchMax"], merged=True)):
+				self._printer.pause_print()
+				self.update_ui_error("Extrusion Mismatch detected, pausing print!")
+		self._plugin_manager.send_plugin_message(
+			self._identifier, dict(type="extrusion", data="gcode=%d" % self.gCodeExtrusion))
+
+	def arduino_read_thread(self, serialConnection):
 		self._logger.info("Read Thread: Starting thread")
 		while self.readThreadStop is False:
 			try:
@@ -95,13 +143,13 @@ class Connection():
 						self.update_ui_control(line)
 					else:
 						self.update_ui_status(line)
+						self.monitor_box_extrusion(line)
 			except serial.SerialException:
 				self._connected = False
 				self._logger.error("error reading from USB")
 				self.update_ui_control("disconnected")
 				self.stopReadThread()
 		self._logger.info("Read Thread: Thread stopped.")
-
 
 	# below code "stolen" from https://gitlab.com/mosaic-mfg/palette-2-plugin/blob/master/octoprint_palette2/Omega.py
 	def getAllPorts(self):
@@ -114,7 +162,8 @@ class Connection():
 				self._logger.info("got port %s" % port.device)
 				baselist.append(port.device)
 
-		baselist = baselist + glob.glob('/dev/serial/by-id/*FTDI*') + glob.glob('/dev/*usbserial*') + glob.glob('/dev/*usbmodem*')
+		baselist = baselist + glob.glob('/dev/serial/by-id/*FTDI*') + glob.glob('/dev/*usbserial*') + glob.glob(
+			'/dev/*usbmodem*')
 		baselist = self.getRealPaths(baselist)
 		# get unique values only
 		baselist = list(set(baselist))
@@ -151,7 +200,7 @@ class Connection():
 		if self.readThread is None:
 			self.readThreadStop = False
 			self.readThread = threading.Thread(
-				target=self.arduinoReadThread,
+				target=self.arduino_read_thread,
 				args=(self.serialConn,)
 			)
 			self.readThread.daemon = True
@@ -163,3 +212,5 @@ class Connection():
 			self.readThread.join()
 		self.readThread = None
 
+	def is_connected(self):
+		return self._connected

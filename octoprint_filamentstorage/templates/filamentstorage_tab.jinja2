@@ -1,15 +1,15 @@
 <div>
     <h1>Filament Storage Container</h1>
-    Humidity: <input class="storage-box-display" disabled="disabled" data-bind="value: humidity"/>
-    Max: <input class="storage-box-input" type="number" data-bind="value: newMaxH">
+    {{ _('Humidity') }}: <input class="storage-box-display" disabled="disabled" data-bind="value: humidity"/>
+    {{ _('Max') }}: <input class="storage-box-input" type="number" data-bind="value: newMaxH">
     <button class="btn btn-primary" data-bind="click: setMaxH">{{ _('Set') }}</button><br/>
-    Temperature: <input class="storage-box-display" disabled="disabled"  data-bind="value: temp"/>
-    Max: <input class="storage-box-input" type="number" data-bind="value: newMaxT">
+    {{ _('Temperature') }}: <input class="storage-box-display" disabled="disabled"  data-bind="value: temp"/>
+    {{ _('Max') }}: <input class="storage-box-input" type="number" data-bind="value: newMaxT">
     <button class="btn btn-primary" data-bind="click: setMaxT">{{ _('Set') }}</button><br/>
-    Heater: <input class="storage-box-display" disabled="disabled" data-bind="value: heaterPower"/> <br/>
+    {{ _('Heater') }}: <input class="storage-box-display" disabled="disabled" data-bind="value: heaterPower"/> <br/>
     <table border="1">
-        <tr><th>Spool 1</th><th>Spool 2</th><th>Spool 3</th><th>Spool 4</th></tr>
-        <tr><th colspan="4">Weight</th></tr>
+        <tr><th>{{ _('Spool') }} 1</th><th>{{ _('Spool') }} 2</th><th>{{ _('Spool') }} 3</th><th>{{ _('Spool') }} 4</th></tr>
+        <tr><th colspan="4">{{ _('Weight') }}</th></tr>
         <tr>
             <td><input class="storage-box-display" disabled="disabled" data-bind="value: w1"/></td>
             <td><input class="storage-box-display" disabled="disabled" data-bind="value: w2"/></td>
@@ -33,7 +33,7 @@
             <td><button class="btn btn-warning" data-bind="click: calibrate3">{{ _('Calibrate') }}</button><sup>*</sup></td>
             <td><button class="btn btn-warning" data-bind="click: calibrate4">{{ _('Calibrate') }}</button><sup>*</sup></td>
         </tr>
-        <tr><th colspan="4">Length</th></tr>
+        <tr><th colspan="4">{{ _('Length') }}</th></tr>
         <tr>
             <td><input class="storage-box-display" disabled="disabled" data-bind="value: l1"/></td>
             <td><input class="storage-box-display" disabled="disabled" data-bind="value: l2"/></td>
@@ -45,16 +45,25 @@
             <td><button class="btn btn-warning" data-bind="click: zero3">{{ _('Zero') }}</button><br/></td>
             <td><button class="btn btn-warning" data-bind="click: zero4">{{ _('Zero') }}</button><br/></td>
         </tr>
+        <tr>
+            <th colspan="4">{{ _('Extrusion Monitor') }}</th>
+        </tr>
+        <tr>
+            <td>{{ _('Gcode') }}: <input class="storage-box-display" disabled="disabled" data-bind="value: gcodeExtrusion"/></td>
+            <td>{{ _('Box') }}: <input class="storage-box-display" disabled="disabled" data-bind="value: boxExtrusion"/></td>
+            <td>{{ _('Mismatch') }}: <input class="storage-box-display" disabled="disabled" data-bind="value: extrusionMismatch"/></td>
+            <td><button class="btn btn-warning" data-bind="click: resetExtMon">{{ _('Reset') }}</button></td>
+        </tr>
     </table>
 
     <div>
-        Calibration Message: <input class="storage-box-display" style="width: 75%" disabled="disabled" data-bind="value: calibrationMsg"/><br/>
-        Error: <input class="storage-box-error" disabled="disabled" data-bind="value: errorMsg"/>
+        {{ _('Calibration Message') }}: <input class="storage-box-display" style="width: 75%" disabled="disabled" data-bind="value: calibrationMsg"/><br/>
+        {{ _('Error') }}: <input class="storage-box-error" disabled="disabled" data-bind="value: errorMsg"/>
     </div>
     <p><sup>*</sup>Before Calibrating, remove all weight from the scales you will be calibrating and wait for the readings to stabilize.
         Hit the Calibration button and follow the instruction in the Popup.</p>
     <hr/>
     <div data-bind="if: disconnected">
-        <button class="btn btn-primary" data-bind="click: connect">Connect</button>
+        <button class="btn btn-primary" data-bind="click: connect">{{ _('Connect') }}</button>
     </div>
 </div>

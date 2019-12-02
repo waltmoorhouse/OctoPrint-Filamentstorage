@@ -20,10 +20,13 @@ or manually using this URL:
 
 ## Configuration
 
-Default Max Temp: Max Temp will be set to this value on startup.
-Default Max Humidity: Max Temp will be set to this value on startup.
+Default Max Temp: Max Temp will be set to this value on startup.  
+Default Max Humidity: Max Temp will be set to this value on startup.  
+Pause on Extrusion Mismatch: Pauses the print if the extrusion mismatch is greater than the below value.  
+Maximum Extrusion Mismatch: If the Gcode extrusion value minus the filament box extrusion value 
+is greater than this value, the print will be paused. 
 
-Max Temp: If the temp goes above this, the dehydrator will be turned off.
+Max Temp: If the temp goes above this, the dehydrator will be turned off.  
 Max Humidity: If the humidity goes above this, the dehydrator will be turned on, unless currentTemp > maxTemp.
 
 ## Device Compatibility
