@@ -163,7 +163,7 @@ class Connection():
 				baselist.append(port.device)
 
 		baselist = baselist + glob.glob('/dev/serial/by-id/*FTDI*') + glob.glob('/dev/*usbserial*') + glob.glob(
-			'/dev/*usbmodem*')
+			'/dev/*usbmodem*') + glob.glob('/dev/*ttyUSB*')
 		baselist = self.getRealPaths(baselist)
 		# get unique values only
 		baselist = list(set(baselist))
