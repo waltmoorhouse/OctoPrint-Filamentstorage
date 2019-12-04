@@ -14,7 +14,7 @@ $(function() {
         self.disconnected = ko.observable();
         self.disconnected(true);
         self.heaterPower = ko.observable();
-        self.humidity = ko.observable();
+        self.humidity = ko.observable("0.00%");
         self.newMaxH = ko.observable();
         self.newMaxT = ko.observable();
         self.temp = ko.observable();
@@ -34,7 +34,9 @@ $(function() {
         self.scale4_calibration_value = ko.observable();
         self.gcodeExtrusion = ko.observable();
         self.boxExtrusion = ko.observable();
-        self.extrusionMismatch = ko.computed(function() {return self.gcodeExtrusion() - self.boxExtrusion();}, self);
+        self.extrusionMismatch = ko.computed(function(){return self.gcodeExtrusion() - self.boxExtrusion();}, self);
+        self.showHumidityWarning = ko.observable();
+        self.warnTemp = ko.observable();
 
         self.setMaxH = function() {
             self.errorMsg("");
@@ -127,6 +129,7 @@ $(function() {
             self.gcodeExtrusion("0.00");
             self.newMaxH(self.settings.settings.plugins.filamentstorage.maxH());
             self.newMaxT(self.settings.settings.plugins.filamentstorage.maxT());
+            self.warnTemp(self.settings.settings.plugins.filamentstorage.humidityWarnPercentage());
             if (!self.disconnected()) {
                 self.setMaxH();
                 self.setMaxT();
@@ -146,6 +149,8 @@ $(function() {
                             switch (parts[0]) {
                                 case 'H':
                                     self.humidity(parts[1]);
+                                    self.showHumidityWarning(parseFloat(parts[1].substring(0, parts[1].length-1)) >
+                                        parseFloat(self.warnTemp()));
                                     break;
                                 case 'T':
                                     self.temp(parts[1]);
@@ -236,6 +241,6 @@ $(function() {
         // ViewModels your plugin depends on, e.g. loginStateViewModel, settingsViewModel, ...
         dependencies: [ "settingsViewModel" ],
         // Elements to bind to, e.g. #settings_plugin_filamentstorage, #tab_plugin_filamentstorage, ...
-        elements: [ "#tab_plugin_filamentstorage" ]
+        elements: [ "#tab_plugin_filamentstorage", "#navbar_plugin_filamentstorage" ]
     });
 });

@@ -24,7 +24,7 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 		if self.conn.is_connected():
 			self._logger.info("Connected to Filament Storage Container!")
 		else:
-			self._logger.info("Could not connect to Filament Storage Container!")
+			self._logger.error("Could not connect to Filament Storage Container!")
 
 	# ~~ SettingsPlugin mixin
 
@@ -87,6 +87,7 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 			return flask.jsonify(error=error, status=500), 500
 
 	# ~~ Gcode Processor hook
+
 	def process_line(self, comm_instance, phase, cmd, cmd_type, gcode, subcode=None, tags=None, *args, **kwargs):
 		match = extrusionPattern.match(cmd)
 		if match:
