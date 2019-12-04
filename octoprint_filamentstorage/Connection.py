@@ -6,10 +6,12 @@ import threading
 import serial
 import serial.tools.list_ports
 
+HUMIDITY_EXPRESSION = "^H:+([\\-0-9]+[.]*[0-9]*)%.*"
 L1_EXPRESSION = ".*L1:+([\\-0-9]+[.]*[0-9]*)mm.*"
 L2_EXPRESSION = ".*L2:+([\\-0-9]+[.]*[0-9]*)mm.*"
 L3_EXPRESSION = ".*L3:+([\\-0-9]+[.]*[0-9]*)mm.*"
 L4_EXPRESSION = ".*L4:+([\\-0-9]+[.]*[0-9]*)mm.*"
+humidityPattern = re.compile(HUMIDITY_EXPRESSION)
 l1Pattern = re.compile(L1_EXPRESSION)
 l2Pattern = re.compile(L2_EXPRESSION)
 l3Pattern = re.compile(L3_EXPRESSION)
@@ -98,6 +100,16 @@ class Connection():
 		self.boxExtrusionOffset = self.boxExtrusion
 		self.boxExtrusion = 0
 
+	def monitor_humidity(self, status):
+		if self._settings.get(["humidityPause"]):
+			match = humidityPattern.match(status)
+			if match:
+				if float(self._settings.get(["humidityPausePercentage"])) < float(match.group(1)):
+					self._printer.pause_print()
+				else:
+					if not self.is_extrusion_mismatch_triggered:
+						self._printer.resume_print()
+
 	def monitor_box_extrusion(self, status):
 		amount = 0
 		match = l1Pattern.match(status)
@@ -117,16 +129,20 @@ class Connection():
 			amount += float(match.group(1))
 
 		self.boxExtrusion = (amount - self.boxExtrusionOffset)
-		self._plugin_manager.send_plugin_message(self._identifier, dict(type="extrusion", data="box=%d" % self.boxExtrusion))
+		self._plugin_manager.send_plugin_message(self._identifier,
+												 dict(type="extrusion", data="box=%d" % self.boxExtrusion))
 
 	def monitor_gcode_extrusion(self, amount):
 		self.gCodeExtrusion += float(amount)
-		if self._settings.get(["extrusionMismatchPause"]):
-			if float(self.gCodeExtrusion) - float(self.boxExtrusion) > float(self._settings.get(["extrusionMismatchMax"], merged=True)):
-				self._printer.pause_print()
-				self.update_ui_error("Extrusion Mismatch detected, pausing print!")
+		if self.is_extrusion_mismatch_triggered:
+			self._printer.pause_print()
+			self.update_ui_error("Extrusion Mismatch detected, pausing print!")
 		self._plugin_manager.send_plugin_message(
 			self._identifier, dict(type="extrusion", data="gcode=%d" % self.gCodeExtrusion))
+
+	def is_extrusion_mismatch_triggered(self):
+		return self._settings.get(["extrusionMismatchPause"]) & float(self.gCodeExtrusion) - float(
+			self.boxExtrusion) > float(self._settings.get(["extrusionMismatchMax"], merged=True))
 
 	def arduino_read_thread(self, serialConnection):
 		self._logger.info("Read Thread: Starting thread")
@@ -142,8 +158,9 @@ class Connection():
 					elif line[:11] == "CALIBRATION":
 						self.update_ui_control(line)
 					else:
-						self.update_ui_status(line)
+						self.monitor_humidity(line)
 						self.monitor_box_extrusion(line)
+						self.update_ui_status(line)
 			except serial.SerialException:
 				self._connected = False
 				self._logger.error("error reading from USB")

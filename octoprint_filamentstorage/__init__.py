@@ -32,9 +32,11 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 		return dict(
 			maxT=80,
 			maxH=5,
-			warnH=15,
 			extrusionMismatchPause=False,
 			extrusionMismatchMax=25,
+			humidityPause=False,
+			humidityWarnPercentage=25,
+			humidityPausePercentage=30,
 		)
 
 	# ~~ AssetPlugin mixin

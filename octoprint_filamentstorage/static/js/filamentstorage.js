@@ -135,77 +135,80 @@ $(function() {
 
         self.onDataUpdaterPluginMessage = (pluginIdent, message) => {
             if (pluginIdent === "filamentstorage") {
-                self.disconnected(false);
                 if (message.type === "error") {
+                    // we can get connection errors via this channel, so don't set disconnected to false for these.
                     self.errorMsg(message.data);
-                } else if (message.type === "status") {
-                    message.data.split(" ").forEach(pair => {
-                        let parts = pair.split(":");
-                        switch (parts[0]) {
-                            case 'H':
-                                self.humidity(parts[1]);
+                } else {
+                    self.disconnected(false);
+                    if (message.type === "status") {
+                        message.data.split(" ").forEach(pair => {
+                            let parts = pair.split(":");
+                            switch (parts[0]) {
+                                case 'H':
+                                    self.humidity(parts[1]);
+                                    break;
+                                case 'T':
+                                    self.temp(parts[1]);
+                                    break;
+                                case 'P':
+                                    self.heaterPower(parts[1]);
+                                    break;
+                                case 'S1':
+                                    self.w1(parts[1]);
+                                    break;
+                                case 'S2':
+                                    self.w2(parts[1]);
+                                    break;
+                                case 'S3':
+                                    self.w3(parts[1]);
+                                    break;
+                                case 'S4':
+                                    self.w4(parts[1]);
+                                    break;
+                                case 'L1':
+                                    self.l1(parts[1]);
+                                    break;
+                                case 'L2':
+                                    self.l2(parts[1]);
+                                    break;
+                                case 'L3':
+                                    self.l3(parts[1]);
+                                    break;
+                                case 'L4':
+                                    self.l4(parts[1]);
+                                    break;
+                            }
+                        });
+                    } else if (message.type === "extrusion") {
+                        let dataParts = message.data.split("=");
+                        switch (dataParts[0]) {
+                            case "box":
+                                self.boxExtrusion(dataParts[1]);
                                 break;
-                            case 'T':
-                                self.temp(parts[1]);
-                                break;
-                            case 'P':
-                                self.heaterPower(parts[1]);
-                                break;
-                            case 'S1':
-                                self.w1(parts[1]);
-                                break;
-                            case 'S2':
-                                self.w2(parts[1]);
-                                break;
-                            case 'S3':
-                                self.w3(parts[1]);
-                                break;
-                            case 'S4':
-                                self.w4(parts[1]);
-                                break;
-                            case 'L1':
-                                self.l1(parts[1]);
-                                break;
-                            case 'L2':
-                                self.l2(parts[1]);
-                                break;
-                            case 'L3':
-                                self.l3(parts[1]);
-                                break;
-                            case 'L4':
-                                self.l4(parts[1]);
+                            case "gcode":
+                                self.gcodeExtrusion(dataParts[1]);
                                 break;
                         }
-                    });
-                } else if (message.type === "extrusion") {
-                    let dataParts = message.data.split("=");
-                    switch (dataParts[0]) {
-                        case "box":
-                            self.boxExtrusion(dataParts[1]);
-                            break;
-                        case "gcode":
-                            self.gcodeExtrusion(dataParts[1]);
-                            break;
-                    }
-                } else if (message.type === "prompt") {
-                    let answer = prompt(message.data.split(":")[1], "0.100");
-                    if (answer != null) {
-                        self.ajaxRequest({"command": "response", "data": answer});
-                    } else {
-                        self.ajaxRequest({"command": "response", "data": "CANCEL"});
-                    }
-                } else if (message.type === "control") {
-                    if (message.data === "disconnected") {
-                        self.disconnected(true);
-                    } else {
-                        let dataSegs = message.data.split(":");
-                        if ("CALIBRATION" === dataSegs[0]) {
-                            self.calibrationMsg(dataSegs[2]);
-                            let vals = dataSegs[1].split(" ");
-                            self.scale1_calibration_value(vals[0]);
-                            self.scale2_calibration_value(vals[1]);
-                            self.scale3_calibration_value(vals[2]);
-                            self.scale4_calibration_value(vals[3]);
+                    } else if (message.type === "prompt") {
+                        let answer = prompt(message.data.split(":")[1], "0.100");
+                        if (answer != null) {
+                            self.ajaxRequest({"command": "response", "data": answer});
+                        } else {
+                            self.ajaxRequest({"command": "response", "data": "CANCEL"});
+                        }
+                    } else if (message.type === "control") {
+                        if (message.data === "disconnected") {
+                            self.disconnected(true);
+                        } else {
+                            let dataSegs = message.data.split(":");
+                            if ("CALIBRATION" === dataSegs[0]) {
+                                self.calibrationMsg(dataSegs[2]);
+                                let vals = dataSegs[1].split(" ");
+                                self.scale1_calibration_value(vals[0]);
+                                self.scale2_calibration_value(vals[1]);
+                                self.scale3_calibration_value(vals[2]);
+                                self.scale4_calibration_value(vals[3]);
+                            }
                         }
                     }
                 }
