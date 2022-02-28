@@ -15,6 +15,11 @@ archive: https://github.com/waltmoorhouse/OctoPrint-Filamentstorage/archive/mast
 tags:
 - filament
 - usb
+- HX711
+- Scale
+- DHT
+- Humidity
+- Temperature
 
 screenshots:
 - url: ![Main](main.png)
