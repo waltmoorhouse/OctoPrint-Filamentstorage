@@ -1,5 +1,5 @@
 # coding=utf-8
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import octoprint.plugin
 import re
@@ -79,11 +79,11 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 				self.conn.tare(payload["id"])
 			elif command == "zero":
 				self.conn.zero(payload["id"])
-			response = "POST request (%s) successful" % command
+			response = "POST request ({}) successful".format(command)
 			return flask.jsonify(response=response, data=data, status=200), 200
 		except Exception as e:
 			error = str(e)
-			self._logger.info("Exception message: %s" % str(e))
+			self._logger.info("Exception message: {}".format(str(e)))
 			return flask.jsonify(error=error, status=500), 500
 
 	# ~~ Gcode Processor hook
@@ -125,7 +125,7 @@ class FilamentstoragePlugin(octoprint.plugin.StartupPlugin,
 # ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
 # can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "Filament Storage"
-
+__plugin_pythoncompat__ = ">2.7,<4"
 
 def __plugin_load__():
 	global __plugin_implementation__

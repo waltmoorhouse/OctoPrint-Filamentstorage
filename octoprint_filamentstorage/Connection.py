@@ -42,12 +42,12 @@ class Connection():
 		self._logger.info("Connecting...")
 
 		self.ports = self.getAllPorts()
-		self._logger.info("Potential ports: %s" % self.ports)
+		self._logger.info("Potential ports: {}".format(self.ports))
 		if len(self.ports) > 0:
 			for port in self.ports:
 				if not self._connected:
 					if self.isPrinterPort(port):
-						self._logger.info("Skipping Printer Port:" + port)
+						self._logger.info("Skipping Printer Port:{}".format(port))
 					else:
 						try:
 							self.serialConn = serial.Serial(port, 115200, timeout=0.5)
@@ -57,6 +57,7 @@ class Connection():
 						except serial.SerialException:
 							self.update_ui_error("Connection failed!")
 			if not self._connected:
+				self._logger.info("Couldn't connect on any port.")
 				self.update_ui_error("Couldn't connect on any port.")
 		else:
 			msg = "NO SERIAL PORTS FOUND!"
@@ -75,25 +76,25 @@ class Connection():
 		self._plugin_manager.send_plugin_message(self._identifier, {"type": "error", "data": error})
 
 	def set(self, name, value):
-		value_str = "SET " + name + "=%s" % value
+		value_str = "SET " + name + "={}".format(value)
 		self._logger.info(value_str)
 		self.serialConn.write(value_str.encode())
 
 	def send(self, data):
-		self._logger.info("Sending: %s" % data)
+		self._logger.info("Sending: {}".format(data))
 		self.serialConn.write(data.encode())
 
 	def calibrate(self, spoolNum):
-		self._logger.info("Calibrating spool: %s" % spoolNum)
-		self.serialConn.write(("CALI %s" % spoolNum).encode())
+		self._logger.info("Calibrating spool: {}".format(spoolNum))
+		self.serialConn.write(("CALI {}".format(spoolNum)).encode())
 
 	def tare(self, spoolNum):
-		self._logger.info("Taring spool: %s" % spoolNum)
-		self.serialConn.write(("TARE %s" % spoolNum).encode())
+		self._logger.info("Taring spool: {}".format(spoolNum))
+		self.serialConn.write(("TARE {}".format(spoolNum)).encode())
 
 	def zero(self, spoolNum):
-		self._logger.info("Zeroing spool: %s" % spoolNum)
-		self.serialConn.write(("ZERO %s" % spoolNum).encode())
+		self._logger.info("Zeroing spool: {}".format(spoolNum))
+		self.serialConn.write(("ZERO {}".format(spoolNum)).encode())
 
 	def reset_extrusion(self):
 		self.gCodeExtrusion = 0
@@ -129,8 +130,7 @@ class Connection():
 			amount += float(match.group(1))
 
 		self.boxExtrusion = (amount - self.boxExtrusionOffset)
-		self._plugin_manager.send_plugin_message(self._identifier,
-												 dict(type="extrusion", data="box=%d" % self.boxExtrusion))
+		self._plugin_manager.send_plugin_message(self._identifier, dict(type="extrusion", data="box={}".format(self.boxExtrusion)))
 
 	def monitor_gcode_extrusion(self, amount):
 		self.gCodeExtrusion += float(amount)
@@ -138,7 +138,7 @@ class Connection():
 			self._printer.pause_print()
 			self.update_ui_error("Extrusion Mismatch detected, pausing print!")
 		self._plugin_manager.send_plugin_message(
-			self._identifier, dict(type="extrusion", data="gcode=%d" % self.gCodeExtrusion))
+			self._identifier, dict(type="extrusion", data="gcode={}".format(self.gCodeExtrusion)))
 
 	def is_extrusion_mismatch_triggered(self):
 		return self._settings.get(["extrusionMismatchPause"]) & float(self.gCodeExtrusion) - float(
@@ -148,9 +148,9 @@ class Connection():
 		self._logger.info("Read Thread: Starting thread")
 		while self.readThreadStop is False:
 			try:
-				line = serialConnection.readline()
+				line = serialConnection.readline().decode('utf-8').rstrip()
 				if line:
-					line = line.strip()
+					#line = line.strip()
 					if line[:5] == "ERROR":
 						self.update_ui_error(line)
 					elif line[:6] == "PROMPT":
@@ -176,18 +176,23 @@ class Connection():
 			# use windows com stuff
 			self._logger.info("Using a windows machine")
 			for port in serial.tools.list_ports.grep('.*0403:6015.*'):
-				self._logger.info("got port %s" % port.device)
+				self._logger.info("got port {}".format(port.device))
 				baselist.append(port.device)
 
-		baselist = baselist + glob.glob('/dev/serial/by-id/*FTDI*') + glob.glob('/dev/*usbserial*') + glob.glob(
-			'/dev/*usbmodem*')
+		baselist = baselist \
+            	+ glob.glob('/dev/serial/by-id/*FTDI*') \
+            	+ glob.glob('/dev/*usbserial*') \
+				+ glob.glob('/dev/*usbmodem*') \
+				+ glob.glob('/dev/*ttyUSB*') \
+				+ glob.glob('/dev/*ttyACM*')
+
 		baselist = self.getRealPaths(baselist)
 		# get unique values only
 		baselist = list(set(baselist))
 		return baselist
 
 	def getRealPaths(self, ports):
-		self._logger.info("Paths: %s" % ports)
+		self._logger.info("Paths: {}".format(ports))
 		for index, port in enumerate(ports):
 			port = os.path.realpath(port)
 			ports[index] = port
@@ -196,8 +201,8 @@ class Connection():
 	def isPrinterPort(self, selected_port):
 		selected_port = os.path.realpath(selected_port)
 		printer_port = self._printer.get_current_connection()[1]
-		self._logger.info("Trying port: %s" % selected_port)
-		self._logger.info("Printer port: %s" % printer_port)
+		self._logger.info("Trying port: {}".format(selected_port))
+		self._logger.info("Printer port: {}".format(printer_port))
 		# because ports usually have a second available one (.tty or .cu)
 		printer_port_alt = ""
 		if printer_port is None:
@@ -207,7 +212,7 @@ class Connection():
 				printer_port_alt = printer_port.replace("tty.", "cu.", 1)
 			elif "cu." in printer_port:
 				printer_port_alt = printer_port.replace("cu.", "tty.", 1)
-			self._logger.info("Printer port alt: %s" % printer_port_alt)
+			self._logger.info("Printer port alt: {}".format(printer_port_alt))
 			if selected_port == printer_port or selected_port == printer_port_alt:
 				return True
 			else:
