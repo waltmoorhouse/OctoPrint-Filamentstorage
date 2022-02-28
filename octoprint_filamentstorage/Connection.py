@@ -57,6 +57,7 @@ class Connection():
 						except serial.SerialException:
 							self.update_ui_error("Connection failed!")
 			if not self._connected:
+				self._logger.info("Couldn't connect on any port.")
 				self.update_ui_error("Couldn't connect on any port.")
 		else:
 			msg = "NO SERIAL PORTS FOUND!"
@@ -129,8 +130,7 @@ class Connection():
 			amount += float(match.group(1))
 
 		self.boxExtrusion = (amount - self.boxExtrusionOffset)
-		self._plugin_manager.send_plugin_message(self._identifier,
-												 dict(type="extrusion", data="box={}".format(self.boxExtrusion)))
+		self._plugin_manager.send_plugin_message(self._identifier, dict(type="extrusion", data="box={}".format(self.boxExtrusion)))
 
 	def monitor_gcode_extrusion(self, amount):
 		self.gCodeExtrusion += float(amount)
@@ -148,9 +148,9 @@ class Connection():
 		self._logger.info("Read Thread: Starting thread")
 		while self.readThreadStop is False:
 			try:
-				line = serialConnection.readline()
+				line = serialConnection.readline().decode('utf-8').rstrip()
 				if line:
-					line = line.strip()
+					#line = line.strip()
 					if line[:5] == "ERROR":
 						self.update_ui_error(line)
 					elif line[:6] == "PROMPT":
@@ -179,8 +179,13 @@ class Connection():
 				self._logger.info("got port {}".format(port.device))
 				baselist.append(port.device)
 
-		baselist = baselist + glob.glob('/dev/serial/by-id/*FTDI*') + glob.glob('/dev/*usbserial*') + glob.glob(
-			'/dev/*usbmodem*') + glob.glob('/dev/*ttyUSB*')
+		baselist = baselist \
+            	+ glob.glob('/dev/serial/by-id/*FTDI*') \
+            	+ glob.glob('/dev/*usbserial*') \
+				+ glob.glob('/dev/*usbmodem*') \
+				+ glob.glob('/dev/*ttyUSB*') \
+				+ glob.glob('/dev/*ttyACM*')
+
 		baselist = self.getRealPaths(baselist)
 		# get unique values only
 		baselist = list(set(baselist))
